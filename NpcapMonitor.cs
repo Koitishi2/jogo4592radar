@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Net.NetworkInformation;
 using System.Threading;
 using AlbionPacketExplorer.PhotonWire;
 using Libpcap;
@@ -65,11 +66,16 @@ internal sealed class NpcapMonitor : IDisposable
         var opened = 0;
         try
         {
-            foreach (var device in Pcap.ListDevices())
-            {
-                if (device.Flags.HasFlag(PcapDeviceFlags.Loopback) ||
-                    !device.Flags.HasFlag(PcapDeviceFlags.Up)) continue;
+            var candidates = Pcap.ListDevices()
+                .Where(device => !device.Flags.HasFlag(PcapDeviceFlags.Loopback) &&
+                                 device.Flags.HasFlag(PcapDeviceFlags.Up)).ToArray();
+            var preferredIds = PreferredAdapterIds();
+            var preferred = candidates.Where(device => preferredIds.Any(id =>
+                device.Name.Contains(id, StringComparison.OrdinalIgnoreCase))).ToArray();
+            if (preferred.Length > 0) candidates = preferred;
 
+            foreach (var device in candidates)
+            {
                 try
                 {
                     dispatcher.OpenDevice(device, pcap => pcap.NonBlocking = true);
@@ -219,4 +225,22 @@ internal sealed class NpcapMonitor : IDisposable
         payload.Length >= 12 && payload[2] is 0 or 1 or 0xCC && payload[3] <= 32;
 
     public void Dispose() => Stop();
+
+    private static HashSet<string> PreferredAdapterIds()
+    {
+        var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var network in NetworkInterface.GetAllNetworkInterfaces())
+        {
+            if (network.OperationalStatus != OperationalStatus.Up) continue;
+            try
+            {
+                if (network.GetIPProperties().GatewayAddresses.Count > 0) ids.Add(network.Id);
+            }
+            catch (NetworkInformationException)
+            {
+                // The Npcap device list remains available as a fallback.
+            }
+        }
+        return ids;
+    }
 }

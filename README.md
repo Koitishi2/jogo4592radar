@@ -1,8 +1,10 @@
-# jogo4592radar 1.0.6
+# jogo4592radar 1.0.7
 
 Aplicativo Windows 10/11 em C# e WPF com overlay transparente. A captura passiva por Npcap decodifica eventos Photon e mostra **pontos verdes de recursos** a partir de coordenadas recebidas, com escala e rotação ajustáveis. A simulação de pontos vermelhos foi removida. Posições de outros jogadores ainda não são exibidas porque não foram validadas nos dados capturados. Não injeta DLL nem acessa memória do Albion Online.
 
 ## Histórico de versões
+
+- **1.0.7 (2026-11-06):** Prioriza o adaptador de rede ativo na captura Npcap para reduzir trabalho; mantém fallback quando não há correspondência. Documenta teste de eventos de jogadores e melhora parcial de desempenho.
 
 - **1.0.6 (2026-11-06):** Remove pontos simulados; desenha recursos em uma única camada visual, reduz atualizações e processamento de eventos; prévia ligada por padrão. Posições de jogadores seguem não validadas.
 
@@ -63,7 +65,13 @@ O [OpenRadar](https://github.com/Nouuu/Albion-Online-OpenRadar/blob/main/web/scr
 
 **Jogadores na 1.0.6:** mesmo com outros jogadores ou inimigos no mapa, o aplicativo não desenha pontos vermelhos. O contador de entrada de jogadores confirma apenas que um evento foi recebido; não fornece uma posição utilizável. Essa limitação permanece até uma validação independente de coordenadas obtidas sem acessar a memória do jogo.
 
+**Amostra adicional (2026-11-06):** uma coleta passiva de 15 segundos com outros jogadores visíveis recebeu 3 eventos de entrada (código 29) e 64 de movimento (código 3). Registramos apenas os tipos e tamanhos dos campos, sem nomes ou conteúdo. O evento de movimento continha um identificador e um bloco de 30 bytes; não foi possível validar duas coordenadas de posição nesse bloco. As capturas de tela mostram jogadores na cena, mas não fornecem uma correspondência entre esses eventos e posições no minimapa. Portanto, pontos vermelhos continuam ausentes por decisão de precisão.
+
 **Desempenho da 1.0.6:** cada atualização desenha todos os recursos em uma única camada visual, sem criar um elemento WPF para cada ponto. A animação e o timer de 80 ms da simulação foram removidos; a atualização do diagnóstico passou de 500 ms para 750 ms; eventos sem relação com recursos deixam de entrar no rastreador. No teste de abertura sem captura, o processo consumiu 0,00 segundo de CPU durante uma amostra de 5 segundos (arredondado a centésimos). Ainda falta medir o impacto com captura e pontos verdes ativos durante o jogo; não há comparação quantitativa com a 1.0.5.
+
+Na sessão ativa da 1.0.6, uma amostra de 10 segundos mediu 1,39 segundo de CPU no processo do aplicativo; outra amostra com menos atividade mediu 0,14 segundo em 10 segundos. O usuário relatou melhora parcial, mas ainda percebe travamentos. A máquina tinha uma conexão Ethernet ativa, enquanto a captura abria cinco adaptadores Npcap. A 1.0.7 prioriza o adaptador de rede com gateway para reduzir cópias e leitura de pacotes; se não encontrar correspondência, mantém a busca anterior. O efeito no jogo ainda depende de teste manual.
+
+**Teste técnico da 1.0.7 (2026-11-06):** a seleção abriu 1 adaptador. Em 10 segundos com o cliente aberto, recebeu 109 pacotes UDP candidatos e decodificou 34 eventos, sem erros; não houve evento de recurso nem nova posição local nessa amostra. A projeção dos três recursos de teste continuou correta. O teste confirma que a captura não foi interrompida pela seleção do adaptador; a melhora de fluidez durante o jogo ainda precisa ser relatada pelo usuário.
 
 O parser PhotonWire em `vendor/PhotonWire` veio de [AlbionPacketExplorer](https://github.com/LuluStudioX/AlbionPacketExplorer/tree/ff79e3f7a390dc393c70a8d8217fdafcccb64a99/libs/PhotonWire), licenciado sob MIT. A licença está preservada em `vendor/PhotonWire/LICENSE`. O código importado recebeu limites de tamanho para fragmentos e um ajuste de compilação.
 
