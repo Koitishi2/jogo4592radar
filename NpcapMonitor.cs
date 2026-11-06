@@ -21,12 +21,16 @@ internal sealed class NpcapMonitor : IDisposable
     private long _resourceSpawns;
     private long _moveEvents;
     private long _decodeErrors;
+    private long _moveRequests;
     private string? _lastError;
     private readonly PhotonPacketReader _photonReader = new();
+    private readonly WorldStateTracker _world = new();
 
     public NpcapMonitor()
     {
         _photonReader.OnEvent += OnPhotonEvent;
+        _photonReader.OnRequest += OnPhotonRequest;
+        _photonReader.OnResponse += _world.ObserveResponse;
     }
 
     public int AdapterCount { get; private set; }
@@ -38,6 +42,8 @@ internal sealed class NpcapMonitor : IDisposable
     public long ResourceSpawns => Interlocked.Read(ref _resourceSpawns);
     public long MoveEvents => Interlocked.Read(ref _moveEvents);
     public long DecodeErrors => Interlocked.Read(ref _decodeErrors);
+    public long MoveRequests => Interlocked.Read(ref _moveRequests);
+    public WorldSnapshot WorldSnapshot(double radius, double rotationDegrees) => _world.Snapshot(radius, rotationDegrees);
     public string? LastError => _lastError;
 
     public int Start()
@@ -52,6 +58,8 @@ internal sealed class NpcapMonitor : IDisposable
         Interlocked.Exchange(ref _resourceSpawns, 0);
         Interlocked.Exchange(ref _moveEvents, 0);
         Interlocked.Exchange(ref _decodeErrors, 0);
+        Interlocked.Exchange(ref _moveRequests, 0);
+        _world.Reset();
 
         var dispatcher = new PcapDispatcher(OnPacket);
         var opened = 0;
@@ -140,6 +148,19 @@ internal sealed class NpcapMonitor : IDisposable
         if (code == 29) Interlocked.Increment(ref _playerSpawns);
         else if (code is 38 or 39 or 40) Interlocked.Increment(ref _resourceSpawns);
         else if (code == 3) Interlocked.Increment(ref _moveEvents);
+        _world.ObserveEvent(message);
+    }
+
+    private void OnPhotonRequest(PhotonRequest request)
+    {
+        var code = (int)request.OperationCode;
+        if (request.Parameters.TryGetValue(253, out var rawCode))
+        {
+            try { code = Convert.ToInt32(rawCode); }
+            catch { /* Keep the fallback operation code. */ }
+        }
+        if (code is 21 or 22) Interlocked.Increment(ref _moveRequests);
+        _world.ObserveRequest(request);
     }
 
     private static bool TryGetUdpPayload(PcapDataLink link, ReadOnlySpan<byte> frame, out ReadOnlySpan<byte> payload)

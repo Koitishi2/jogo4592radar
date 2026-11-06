@@ -91,6 +91,9 @@ public partial class ControlWindow : Window
 
     private void UpdateCaptureStatus()
     {
+        var world = _capture.WorldSnapshot(ResourceRadiusSlider.Value, ResourceRotationSlider.Value);
+        _overlay?.SetResources(ResourcePreviewCheck.IsChecked == true && _capture.IsRunning
+            ? world.VisibleResources : Array.Empty<ResourcePoint>());
         if (_capture.LastError is { } error)
         {
             CaptureStatus.Text = $"Falha na captura: {error}";
@@ -99,7 +102,8 @@ public partial class ControlWindow : Window
         else if (_capture.IsRunning)
         {
             CaptureStatus.Text = $"{_capture.AdapterCount} adaptador(es) · {_capture.UdpPackets} UDP candidatos · {_capture.LikelyPhotonPackets} Photon prováveis\n" +
-                $"Eventos decodificados: {_capture.DecodedEvents} · entrada de jogador: {_capture.PlayerSpawns} · recursos: {_capture.ResourceSpawns} · movimento: {_capture.MoveEvents} · erros: {_capture.DecodeErrors}";
+                $"Eventos: {_capture.DecodedEvents} · jogadores: {_capture.PlayerSpawns} · recursos: {_capture.ResourceSpawns} · movimentos: {_capture.MoveEvents} · erros: {_capture.DecodeErrors}\n" +
+                $"Posição local: {(world.HasLocalPosition ? "recebida" : "aguardando movimento/entrada")}; recursos rastreados: {world.TrackedResources}; visíveis no raio: {world.VisibleResources.Count}";
         }
         else if (CaptureButton.Content?.ToString() == "Iniciar captura")
         {

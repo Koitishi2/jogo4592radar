@@ -22,6 +22,12 @@
     <TextBlock Text="Lê pacotes UDP nas portas 5055, 5056 e 5058 e tenta decodificar eventos Photon. Posições ainda não são validadas." TextWrapping="Wrap" Foreground="#BEC9D3" />
     <Button x:Name="CaptureButton" Content="Iniciar captura" HorizontalAlignment="Left" Click="ToggleCapture" />
     <TextBlock x:Name="CaptureStatus" Text="Captura parada." TextWrapping="Wrap" Foreground="#8EE0AD" Margin="0,8,0,0" />
+    <CheckBox x:Name="ResourcePreviewCheck" Content="Prévia de recursos reais (experimental)" Margin="0,9,0,7" IsChecked="False" />
+    <TextBlock Text="Raio da prévia (unidades do mapa)" />
+    <Slider x:Name="ResourceRadiusSlider" Minimum="20" Maximum="160" Value="80" TickFrequency="10" />
+    <TextBlock Text="Rotação da prévia" Margin="0,7,0,5" />
+    <Slider x:Name="ResourceRotationSlider" Minimum="-180" Maximum="180" Value="-135" TickFrequency="15" />
+    <TextBlock Text="Pontos verdes vêm de eventos de recursos; ajuste raio e rotação para comparar com o minimapa. Pontos vermelhos ainda são simulados." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,8,0,0" />
     <TextBlock Text="Arraste o círculo sobre uma imagem de teste. Depois, trave a posição para os cliques passarem à janela abaixo." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,13,0,0" />
     <TextBlock Text="Os pontos vermelhos ainda são simulados. A contagem de pacotes não confirma inimigos reais." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,8,0,0" />
   </StackPanel>

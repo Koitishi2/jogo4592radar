@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -30,6 +31,25 @@ public partial class OverlayWindow : Window
 
     public void SetSize(double size) => Width = Height = Math.Round(size);
     public void SetShade(double opacity) => Shade.Opacity = Math.Clamp(opacity, 0, 0.75);
+
+    internal void SetResources(IReadOnlyList<ResourcePoint> resources)
+    {
+        ResourceCanvas.Children.Clear();
+        foreach (var point in resources)
+        {
+            var marker = new Ellipse
+            {
+                Width = 9,
+                Height = 9,
+                Fill = Brushes.LimeGreen,
+                Stroke = Brushes.Black,
+                StrokeThickness = 1
+            };
+            Canvas.SetLeft(marker, point.X * ActualWidth - 4.5);
+            Canvas.SetTop(marker, point.Y * ActualHeight - 4.5);
+            ResourceCanvas.Children.Add(marker);
+        }
+    }
 
     public void SetSimulation(bool enabled)
     {
