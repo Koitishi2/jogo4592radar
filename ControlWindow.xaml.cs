@@ -21,14 +21,8 @@ public partial class ControlWindow : Window
         _statusTimer.Start();
         Loaded += (_, _) =>
         {
-            var width = SizeSlider.Value;
-            var height = width * HeightRatioSlider.Value;
-            _overlay = new OverlayWindow
-            {
-                Left = SystemParameters.WorkArea.Right - width - 30,
-                Top = SystemParameters.WorkArea.Bottom - height - 30
-            };
-            _overlay.SetSize(width, HeightRatioSlider.Value);
+            _overlay = new OverlayWindow();
+            ApplyMinimapPreset();
             _overlay.SetShade(OpacitySlider.Value);
             _overlay.Show();
         };
@@ -59,6 +53,21 @@ public partial class ControlWindow : Window
         if (HeightRatioText is null || SizeSlider is null) return;
         HeightRatioText.Text = $"{Math.Round(e.NewValue * 100)}%";
         _overlay?.SetSize(SizeSlider.Value, e.NewValue);
+    }
+
+    private void AlignToMinimap(object sender, RoutedEventArgs e) => ApplyMinimapPreset();
+
+    private void ApplyMinimapPreset()
+    {
+        var area = SystemParameters.WorkArea;
+        var width = Math.Clamp(Math.Round(area.Width * 0.19), 140, 500);
+        const double heightRatio = 0.72;
+        SizeSlider.Value = width;
+        HeightRatioSlider.Value = heightRatio;
+        if (_overlay is null) return;
+        _overlay.SetSize(width, heightRatio);
+        _overlay.Left = area.Right - width - 20;
+        _overlay.Top = area.Bottom - width * heightRatio - 35;
     }
 
     private void ToggleLock(object sender, RoutedEventArgs e)

@@ -1,8 +1,10 @@
-# jogo4592radar 1.0.8
+# jogo4592radar 1.0.9
 
 Aplicativo Windows 10/11 em C# e WPF com overlay transparente em formato de losango, alinhável ao minimapa. A captura passiva por Npcap decodifica eventos Photon e mostra **pontos verdes de recursos** a partir de coordenadas recebidas, com largura, altura, raio e rotação ajustáveis. A simulação de pontos vermelhos foi removida. Posições de outros jogadores ainda não são exibidas porque não foram validadas nos dados capturados. Não injeta DLL nem acessa memória do Albion Online.
 
 ## Histórico de versões
+
+- **1.0.9 (2026-11-06):** Ajusta posição e tamanho iniciais do losango conforme minimapa 1920x1080; adiciona botão de realinhamento e contorno visível ao configurar. Outras escalas exigem ajuste manual.
 
 - **1.0.8 (2026-11-06):** Substitui círculo por losango alinhável ao minimapa; adiciona ajuste da altura e recorta os recursos ao mapa. Registra teste fluido da 1.0.7; inimigos seguem sem posição validada.
 
@@ -55,7 +57,7 @@ Para repetir o teste automático de inicialização após compilar:
 
 Clique em **Iniciar captura** na janela de controle. O aplicativo abre os adaptadores ativos do Npcap e filtra UDP nas portas 5055, 5056 e 5058. A janela mostra pacotes candidatos, eventos Photon decodificados e contagens separadas de entrada de jogador, recurso e movimento. **Esses contadores não são pontos no mapa nem identificam inimigos.** A captura só começa após o clique e é encerrada ao fechar a janela. O aplicativo não grava payloads em disco.
 
-Para testar os recursos, inicie a captura **antes de entrar ou se mover** em uma área com recursos. A opção **Mostrar recursos capturados** já vem marcada; desmarque-a para ocultar os pontos. O programa só desenha recursos depois de receber a posição local por uma requisição de movimento ou resposta de entrada no mapa. Ajuste **largura**, **altura**, **raio** e **rotação** observando o alinhamento; os valores iniciais (240 px, 85% de altura, 80 unidades e −135°) são provisórios. A camada de pontos é recortada ao losango. A visualização pode omitir recursos ou mostrar pontos antigos por até 60 segundos; a precisão ainda não foi medida.
+Para testar os recursos, inicie a captura **antes de entrar ou se mover** em uma área com recursos. A opção **Mostrar recursos capturados** já vem marcada; desmarque-a para ocultar os pontos. O programa só desenha recursos depois de receber a posição local por uma requisição de movimento ou resposta de entrada no mapa. **Alinhar ao minimapa** restaura uma posição calculada para a tela principal; em 1920×1080, usa aproximadamente 365 px de largura e 72% de altura. Arraste o losango para corrigir a posição e ajuste **largura**, **altura**, **raio** e **rotação** observando o alinhamento; os valores são provisórios e dependem da escala da interface do jogo. A camada de pontos é recortada ao losango. A visualização pode omitir recursos ou mostrar pontos antigos por até 60 segundos; a precisão ainda não foi medida.
 
 Em um teste local de 12 segundos com o cliente aberto (2026-11-06), a captura abriu 5 adaptadores, observou 367 pacotes UDP candidatos, decodificou 580 eventos, incluindo 9 de entrada de jogador e 476 de movimento; 0 eventos de recurso apareceram nesse intervalo e houve 0 erros de decodificação. A origem de cada pacote não foi atribuída a um processo, e esses números não validam coordenadas nem a exibição no minimapa.
 
@@ -77,12 +79,14 @@ Na sessão ativa da 1.0.6, uma amostra de 10 segundos mediu 1,39 segundo de CPU 
 
 **Teste manual da 1.0.7 (2026-11-06):** o usuário relatou que o jogo ficou fluido com os pontos verdes ativos. Isso é uma observação dessa sessão, sem medição de latência de quadros. Uma captura de tela posterior mostrou que o círculo do overlay não acompanhava o formato de losango do minimapa; a versão 1.0.8 troca o contorno e adiciona ajuste de altura. Nenhuma posição de inimigo foi validada nessa imagem.
 
+**Ajuste da 1.0.9 (2026-11-06):** nova captura de tela mostrou que o losango da 1.0.8 ainda era menor e estava à direita/abaixo do minimapa. Em uma tela de 1920×1080, o mapa ocupava aproximadamente 360×265 px, enquanto o overlay tinha 240×204 px. O novo posicionamento inicial usa 19% da largura útil, altura de 72% da largura, margem direita de 20 px e margem inferior de 35 px em relação à área útil do Windows. O botão de alinhamento reaplica esse cálculo. Isso é uma aproximação baseada na tela observada, não detecção automática dos limites do minimapa; requer conferência em jogo e ajuste manual para outras escalas/resoluções.
+
 O parser PhotonWire em `vendor/PhotonWire` veio de [AlbionPacketExplorer](https://github.com/LuluStudioX/AlbionPacketExplorer/tree/ff79e3f7a390dc393c70a8d8217fdafcccb64a99/libs/PhotonWire), licenciado sob MIT. A licença está preservada em `vendor/PhotonWire/LICENSE`. O código importado recebeu limites de tamanho para fragmentos e um ajuste de compilação.
 
 ## Teste manual
 
 1. Abra o aplicativo; arraste o losango para alinhar com o minimapa.
-2. Ajuste largura, altura e escurecimento na janela de controle.
+2. Clique em **Alinhar ao minimapa** para restaurar a posição inicial. Ajuste largura, altura e escurecimento na janela de controle, e arraste se necessário.
 3. Clique em **Iniciar captura** e mova o personagem. Confira os contadores de posição local e recursos.
 4. Com **Mostrar recursos capturados** marcado, confira os pontos verdes. Desmarque para ocultá-los.
 5. Clique em **Travar posição**; o overlay deixa passar cliques para a janela de baixo. Destrave para arrastar novamente.

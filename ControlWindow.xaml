@@ -11,12 +11,15 @@
     <Slider x:Name="OpacitySlider" Minimum="0" Maximum="0.75" Value="0.2" TickFrequency="0.05" ValueChanged="OpacityChanged" />
     <TextBlock x:Name="OpacityText" Text="20%" HorizontalAlignment="Right" />
     <TextBlock Text="Largura do overlay" Margin="0,8,0,5" />
-    <Slider x:Name="SizeSlider" Minimum="140" Maximum="400" Value="240" TickFrequency="10" ValueChanged="OverlaySizeChanged" />
-    <TextBlock x:Name="SizeText" Text="240 px" HorizontalAlignment="Right" />
+    <Slider x:Name="SizeSlider" Minimum="140" Maximum="500" Value="365" TickFrequency="10" ValueChanged="OverlaySizeChanged" />
+    <TextBlock x:Name="SizeText" Text="365 px" HorizontalAlignment="Right" />
     <TextBlock Text="Altura em relação à largura" Margin="0,8,0,5" />
-    <Slider x:Name="HeightRatioSlider" Minimum="0.7" Maximum="1.2" Value="0.85" TickFrequency="0.05" ValueChanged="HeightRatioChanged" />
-    <TextBlock x:Name="HeightRatioText" Text="85%" HorizontalAlignment="Right" />
-    <Button x:Name="LockButton" Content="Travar posição" Click="ToggleLock" HorizontalAlignment="Left" Margin="0,8,0,0" />
+    <Slider x:Name="HeightRatioSlider" Minimum="0.6" Maximum="1.2" Value="0.72" TickFrequency="0.02" ValueChanged="HeightRatioChanged" />
+    <TextBlock x:Name="HeightRatioText" Text="72%" HorizontalAlignment="Right" />
+    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+      <Button x:Name="AlignButton" Content="Alinhar ao minimapa" Click="AlignToMinimap" />
+      <Button x:Name="LockButton" Content="Travar posição" Click="ToggleLock" />
+    </StackPanel>
     <Separator Margin="0,14,0,12" Background="#495566" />
     <TextBlock Text="CAPTURA NPCAP · DIAGNÓSTICO" FontWeight="Bold" />
     <TextBlock Text="Lê pacotes UDP nas portas 5055, 5056 e 5058 e decodifica eventos Photon. A posição de outros jogadores não foi validada." TextWrapping="Wrap" Foreground="#BEC9D3" />
