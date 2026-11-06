@@ -10,9 +10,12 @@
     <TextBlock Text="Escurecimento do minimapa" />
     <Slider x:Name="OpacitySlider" Minimum="0" Maximum="0.75" Value="0.2" TickFrequency="0.05" ValueChanged="OpacityChanged" />
     <TextBlock x:Name="OpacityText" Text="20%" HorizontalAlignment="Right" />
-    <TextBlock Text="Tamanho do overlay" Margin="0,8,0,5" />
+    <TextBlock Text="Largura do overlay" Margin="0,8,0,5" />
     <Slider x:Name="SizeSlider" Minimum="140" Maximum="400" Value="240" TickFrequency="10" ValueChanged="OverlaySizeChanged" />
     <TextBlock x:Name="SizeText" Text="240 px" HorizontalAlignment="Right" />
+    <TextBlock Text="Altura em relação à largura" Margin="0,8,0,5" />
+    <Slider x:Name="HeightRatioSlider" Minimum="0.7" Maximum="1.2" Value="0.85" TickFrequency="0.05" ValueChanged="HeightRatioChanged" />
+    <TextBlock x:Name="HeightRatioText" Text="85%" HorizontalAlignment="Right" />
     <Button x:Name="LockButton" Content="Travar posição" Click="ToggleLock" HorizontalAlignment="Left" Margin="0,8,0,0" />
     <Separator Margin="0,14,0,12" Background="#495566" />
     <TextBlock Text="CAPTURA NPCAP · DIAGNÓSTICO" FontWeight="Bold" />
@@ -25,7 +28,7 @@
     <TextBlock Text="Rotação da prévia" Margin="0,7,0,5" />
     <Slider x:Name="ResourceRotationSlider" Minimum="-180" Maximum="180" Value="-135" TickFrequency="15" />
     <TextBlock Text="Pontos verdes vêm de eventos de recursos; ajuste raio e rotação para comparar com o minimapa. Nenhum ponto vermelho é desenhado sem posição validada." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,8,0,0" />
-    <TextBlock Text="Arraste o círculo sobre o minimapa. Depois, trave a posição para os cliques passarem à janela abaixo." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,13,0,0" />
+    <TextBlock Text="Arraste o losango sobre o minimapa e ajuste largura e altura. Depois, trave a posição para os cliques passarem à janela abaixo." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,13,0,0" />
   </StackPanel>
   </ScrollViewer>
 </Window>

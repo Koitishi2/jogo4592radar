@@ -21,12 +21,14 @@ public partial class ControlWindow : Window
         _statusTimer.Start();
         Loaded += (_, _) =>
         {
+            var width = SizeSlider.Value;
+            var height = width * HeightRatioSlider.Value;
             _overlay = new OverlayWindow
             {
-                Left = SystemParameters.WorkArea.Right - 270,
-                Top = SystemParameters.WorkArea.Bottom - 270
+                Left = SystemParameters.WorkArea.Right - width - 30,
+                Top = SystemParameters.WorkArea.Bottom - height - 30
             };
-            _overlay.SetSize(SizeSlider.Value);
+            _overlay.SetSize(width, HeightRatioSlider.Value);
             _overlay.SetShade(OpacitySlider.Value);
             _overlay.Show();
         };
@@ -47,9 +49,16 @@ public partial class ControlWindow : Window
 
     private void OverlaySizeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        if (SizeText is null) return;
+        if (SizeText is null || HeightRatioSlider is null) return;
         SizeText.Text = $"{Math.Round(e.NewValue)} px";
-        _overlay?.SetSize(e.NewValue);
+        _overlay?.SetSize(e.NewValue, HeightRatioSlider.Value);
+    }
+
+    private void HeightRatioChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (HeightRatioText is null || SizeSlider is null) return;
+        HeightRatioText.Text = $"{Math.Round(e.NewValue * 100)}%";
+        _overlay?.SetSize(SizeSlider.Value, e.NewValue);
     }
 
     private void ToggleLock(object sender, RoutedEventArgs e)

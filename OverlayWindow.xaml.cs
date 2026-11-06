@@ -19,7 +19,11 @@ public partial class OverlayWindow : Window
         InitializeComponent();
     }
 
-    public void SetSize(double size) => Width = Height = Math.Round(size);
+    public void SetSize(double width, double heightRatio)
+    {
+        Width = Math.Round(width);
+        Height = Math.Round(width * Math.Clamp(heightRatio, 0.7, 1.2));
+    }
     public void SetShade(double opacity) => Shade.Opacity = Math.Clamp(opacity, 0, 0.75);
 
     internal void SetResources(IReadOnlyList<ResourcePoint> resources) => ResourceMarkers.SetPoints(resources);
@@ -27,7 +31,7 @@ public partial class OverlayWindow : Window
     public void SetLocked(bool locked)
     {
         _locked = locked;
-        Shade.Stroke = locked ? Brushes.Transparent : new SolidColorBrush(Color.FromRgb(255, 85, 85));
+        Shade.Stroke = locked ? Brushes.Transparent : new SolidColorBrush(Color.FromRgb(118, 214, 136));
         var handle = new WindowInteropHelper(this).Handle;
         if (handle == IntPtr.Zero) return;
         var style = GetWindowLongPtr(handle, GwlExstyle).ToInt64();
