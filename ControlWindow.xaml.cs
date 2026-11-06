@@ -1,5 +1,6 @@
 using System;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace Jogo4592Radar;
 
@@ -8,13 +9,17 @@ public partial class ControlWindow : Window
     private OverlayWindow? _overlay;
     private bool _running = true;
     private bool _locked;
+    private readonly NpcapMonitor _capture = new();
+    private readonly DispatcherTimer _statusTimer = new() { Interval = TimeSpan.FromMilliseconds(500) };
 
     public ControlWindow()
     {
         InitializeComponent();
         var version = typeof(App).Assembly.GetName().Version?.ToString(3) ?? "1.0.0";
-        Title = $"jogo4592radar {version} — Simulação";
+        Title = $"jogo4592radar {version} — Diagnóstico";
         VersionHeading.Text = $"jogo4592radar {version}";
+        _statusTimer.Tick += (_, _) => UpdateCaptureStatus();
+        _statusTimer.Start();
         Loaded += (_, _) =>
         {
             _overlay = new OverlayWindow
@@ -26,7 +31,12 @@ public partial class ControlWindow : Window
             _overlay.SetShade(OpacitySlider.Value);
             _overlay.Show();
         };
-        Closed += (_, _) => _overlay?.Close();
+        Closed += (_, _) =>
+        {
+            _statusTimer.Stop();
+            _capture.Dispose();
+            _overlay?.Close();
+        };
     }
 
     private void OpacityChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -55,5 +65,45 @@ public partial class ControlWindow : Window
         _locked = !_locked;
         _overlay?.SetLocked(_locked);
         LockButton.Content = _locked ? "Destravar posição" : "Travar posição";
+    }
+
+    private void ToggleCapture(object sender, RoutedEventArgs e)
+    {
+        if (_capture.IsRunning)
+        {
+            _capture.Stop();
+            CaptureButton.Content = "Iniciar captura";
+            UpdateCaptureStatus();
+            return;
+        }
+
+        try
+        {
+            _capture.Start();
+            CaptureButton.Content = "Parar captura";
+        }
+        catch (Exception error)
+        {
+            CaptureStatus.Text = $"Falha no Npcap: {error.Message}";
+            CaptureButton.Content = "Tentar novamente";
+        }
+    }
+
+    private void UpdateCaptureStatus()
+    {
+        if (_capture.LastError is { } error)
+        {
+            CaptureStatus.Text = $"Falha na captura: {error}";
+            CaptureButton.Content = "Tentar novamente";
+        }
+        else if (_capture.IsRunning)
+        {
+            CaptureStatus.Text = $"{_capture.AdapterCount} adaptador(es) · {_capture.UdpPackets} UDP candidatos · {_capture.LikelyPhotonPackets} Photon prováveis\n" +
+                $"Eventos decodificados: {_capture.DecodedEvents} · entrada de jogador: {_capture.PlayerSpawns} · recursos: {_capture.ResourceSpawns} · movimento: {_capture.MoveEvents} · erros: {_capture.DecodeErrors}";
+        }
+        else if (CaptureButton.Content?.ToString() == "Iniciar captura")
+        {
+            CaptureStatus.Text = "Captura parada.";
+        }
     }
 }

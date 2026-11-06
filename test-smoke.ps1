@@ -12,7 +12,7 @@ try {
     Start-Sleep -Seconds 2
     $process.Refresh()
     if ($process.HasExited) { throw "Aplicativo encerrou logo após iniciar (código $($process.ExitCode))." }
-    if ($process.MainWindowTitle -notlike "*${version}*Simulação*") {
+    if ($process.MainWindowTitle -notlike "*${version}*Diagnóstico*") {
         throw "Título inesperado: $($process.MainWindowTitle)"
     }
     Write-Output "PASS: aplicativo $version iniciou e abriu a janela de controle."

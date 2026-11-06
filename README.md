@@ -1,8 +1,10 @@
-# jogo4592radar 1.0.3
+# jogo4592radar 1.0.4
 
-Base experimental para Windows 10/11, em C# e WPF. Mostra um círculo transparente sobre o minimapa com três pontos vermelhos **simulados**. Não detecta jogadores reais, não lê pacotes, não injeta DLL e não acessa memória do Albion Online.
+Base experimental para Windows 10/11, em C# e WPF. Mostra um círculo transparente com três pontos vermelhos **simulados**. A captura passiva por Npcap pode contar e decodificar eventos de rede, mas ainda não transforma eventos em posições verificadas de jogadores ou recursos no overlay. Não injeta DLL nem acessa memória do Albion Online.
 
 ## Histórico de versões
+
+- **1.0.4 (2026-11-06):** Captura passiva Npcap e contagem de eventos Photon, jogadores, recursos e movimento; marcadores permanecem simulados.
 
 - **1.0.3 (2026-11-06):** Janela de controle ampliada com rolagem e textos de demonstração corrigidos para evitar corte em telas com escala.
 
@@ -41,6 +43,14 @@ Para repetir o teste automático de inicialização após compilar:
 .\test-smoke.ps1
 ```
 
+## Diagnóstico Npcap
+
+Clique em **Iniciar captura** na janela de controle. O aplicativo abre os adaptadores ativos do Npcap e filtra UDP nas portas 5055, 5056 e 5058. A janela mostra pacotes candidatos, eventos Photon decodificados e contagens separadas de entrada de jogador, recurso e movimento. **Esses contadores não são pontos no mapa nem identificam inimigos.** A captura só começa após o clique e é encerrada ao fechar a janela. O aplicativo não grava payloads em disco.
+
+Em um teste local de 12 segundos com o cliente aberto (2026-11-06), a captura abriu 5 adaptadores, observou 367 pacotes UDP candidatos, decodificou 580 eventos, incluindo 9 de entrada de jogador e 476 de movimento; 0 eventos de recurso apareceram nesse intervalo e houve 0 erros de decodificação. A origem de cada pacote não foi atribuída a um processo, e esses números não validam coordenadas nem a exibição no minimapa.
+
+O parser PhotonWire em `vendor/PhotonWire` veio de [AlbionPacketExplorer](https://github.com/LuluStudioX/AlbionPacketExplorer/tree/ff79e3f7a390dc393c70a8d8217fdafcccb64a99/libs/PhotonWire), licenciado sob MIT. A licença está preservada em `vendor/PhotonWire/LICENSE`. O código importado recebeu limites de tamanho para fragmentos e um ajuste de compilação.
+
 ## Teste manual
 
 1. Abra o aplicativo sobre uma janela de teste ou imagem estática de minimapa; arraste o círculo para ajustar a posição. Não use este teste durante uma partida de Albion Online sem autorização expressa da Sandbox Interactive.
@@ -54,7 +64,7 @@ O posicionamento é manual e não acompanha mudanças de tamanho, resolução ou
 
 ## Avaliação de captura passiva
 
-O projeto público [AlbionOnline-StatisticsAnalysis](https://github.com/Triky313/AlbionOnline-StatisticsAnalysis) oferece captura alternativa por Npcap. Em [LibpcapPacketProvider.cs](https://github.com/Triky313/AlbionOnline-StatisticsAnalysis/blob/main/src/StatisticsAnalysisTool/Network/PacketProviders/LibpcapPacketProvider.cs), abre adaptadores, aplica filtro para UDP nas portas 5055/5056/5058, lê IPv4/IPv6 e repassa payloads ao receptor Photon. Não identifiquei nesse caminho um mecanismo de ocultação ou “bypass” de anticheat. Captura passiva não equivale a aprovação para um radar. O [README do projeto](https://github.com/Triky313/AlbionOnline-StatisticsAnalysis#is-this-allowed) diz que sua ferramenta não tem overlay e não rastreia jogadores fora da visão do usuário. Nesta versão, a captura Npcap permanece fora do aplicativo.
+O projeto público [AlbionOnline-StatisticsAnalysis](https://github.com/Triky313/AlbionOnline-StatisticsAnalysis) oferece captura alternativa por Npcap. Em [LibpcapPacketProvider.cs](https://github.com/Triky313/AlbionOnline-StatisticsAnalysis/blob/main/src/StatisticsAnalysisTool/Network/PacketProviders/LibpcapPacketProvider.cs), abre adaptadores, aplica filtro para UDP nas portas 5055/5056/5058, lê IPv4/IPv6 e repassa payloads ao receptor Photon. Não identifiquei nesse caminho um mecanismo de ocultação ou “bypass” de anticheat. Captura passiva não equivale a aprovação para um radar. O [README do projeto](https://github.com/Triky313/AlbionOnline-StatisticsAnalysis#is-this-allowed) diz que sua ferramenta não tem overlay e não rastreia jogadores fora da visão do usuário. Nossa captura Npcap agora serve apenas para diagnóstico de eventos; os marcadores do overlay permanecem simulados.
 
 ## Regras e uso
 
