@@ -1,8 +1,10 @@
-# jogo4592radar 1.0.5
+# jogo4592radar 1.0.6
 
-Base experimental para Windows 10/11, em C# e WPF. Mostra um círculo transparente com três pontos vermelhos **simulados**. A captura passiva por Npcap decodifica eventos Photon; uma prévia opcional coloca **pontos verdes de recursos** a partir de coordenadas recebidas, com escala e rotação ajustáveis. Posições de outros jogadores ainda não são exibidas. Não injeta DLL nem acessa memória do Albion Online.
+Aplicativo Windows 10/11 em C# e WPF com overlay transparente. A captura passiva por Npcap decodifica eventos Photon e mostra **pontos verdes de recursos** a partir de coordenadas recebidas, com escala e rotação ajustáveis. A simulação de pontos vermelhos foi removida. Posições de outros jogadores ainda não são exibidas porque não foram validadas nos dados capturados. Não injeta DLL nem acessa memória do Albion Online.
 
 ## Histórico de versões
+
+- **1.0.6 (2026-11-06):** Remove pontos simulados; desenha recursos em uma única camada visual, reduz atualizações e processamento de eventos; prévia ligada por padrão. Posições de jogadores seguem não validadas.
 
 - **1.0.5 (2026-11-06):** Prévia opcional de recursos com posições de eventos Photon, projeção ajustável por raio e rotação; jogadores continuam sem posição validada.
 
@@ -49,7 +51,7 @@ Para repetir o teste automático de inicialização após compilar:
 
 Clique em **Iniciar captura** na janela de controle. O aplicativo abre os adaptadores ativos do Npcap e filtra UDP nas portas 5055, 5056 e 5058. A janela mostra pacotes candidatos, eventos Photon decodificados e contagens separadas de entrada de jogador, recurso e movimento. **Esses contadores não são pontos no mapa nem identificam inimigos.** A captura só começa após o clique e é encerrada ao fechar a janela. O aplicativo não grava payloads em disco.
 
-Para testar os recursos, inicie a captura **antes de entrar ou se mover** em uma área com recursos. Marque **Prévia de recursos reais (experimental)** para mostrar pontos verdes. O programa só desenha recursos depois de receber a posição local por uma requisição de movimento ou resposta de entrada no mapa. Ajuste **raio** e **rotação** observando o alinhamento; os valores iniciais (80 unidades e −135°) são provisórios. Pontos vermelhos continuam simulados. A prévia pode omitir recursos ou mostrar pontos antigos por até 60 segundos; não a trate como mapa validado.
+Para testar os recursos, inicie a captura **antes de entrar ou se mover** em uma área com recursos. A opção **Mostrar recursos capturados** já vem marcada; desmarque-a para ocultar os pontos. O programa só desenha recursos depois de receber a posição local por uma requisição de movimento ou resposta de entrada no mapa. Ajuste **raio** e **rotação** observando o alinhamento; os valores iniciais (80 unidades e −135°) são provisórios. A visualização pode omitir recursos ou mostrar pontos antigos por até 60 segundos; a precisão ainda não foi medida.
 
 Em um teste local de 12 segundos com o cliente aberto (2026-11-06), a captura abriu 5 adaptadores, observou 367 pacotes UDP candidatos, decodificou 580 eventos, incluindo 9 de entrada de jogador e 476 de movimento; 0 eventos de recurso apareceram nesse intervalo e houve 0 erros de decodificação. A origem de cada pacote não foi atribuída a um processo, e esses números não validam coordenadas nem a exibição no minimapa.
 
@@ -59,14 +61,18 @@ Em outra captura de 20 segundos com o personagem se movendo (2026-11-06), chegar
 
 O [OpenRadar](https://github.com/Nouuu/Albion-Online-OpenRadar/blob/main/web/scripts/drawings/PlayersDrawing.js) registra que o desenho de posições de jogadores está desativado porque essas posições chegam cifradas. Também observamos eventos de movimento com posições em bytes, sem coordenadas verificadas. Por isso, a presença de um jogador detectada no tráfego não é convertida em marcador vermelho.
 
+**Jogadores na 1.0.6:** mesmo com outros jogadores ou inimigos no mapa, o aplicativo não desenha pontos vermelhos. O contador de entrada de jogadores confirma apenas que um evento foi recebido; não fornece uma posição utilizável. Essa limitação permanece até uma validação independente de coordenadas obtidas sem acessar a memória do jogo.
+
+**Desempenho da 1.0.6:** cada atualização desenha todos os recursos em uma única camada visual, sem criar um elemento WPF para cada ponto. A animação e o timer de 80 ms da simulação foram removidos; a atualização do diagnóstico passou de 500 ms para 750 ms; eventos sem relação com recursos deixam de entrar no rastreador. No teste de abertura sem captura, o processo consumiu 0,00 segundo de CPU durante uma amostra de 5 segundos (arredondado a centésimos). Ainda falta medir o impacto com captura e pontos verdes ativos durante o jogo; não há comparação quantitativa com a 1.0.5.
+
 O parser PhotonWire em `vendor/PhotonWire` veio de [AlbionPacketExplorer](https://github.com/LuluStudioX/AlbionPacketExplorer/tree/ff79e3f7a390dc393c70a8d8217fdafcccb64a99/libs/PhotonWire), licenciado sob MIT. A licença está preservada em `vendor/PhotonWire/LICENSE`. O código importado recebeu limites de tamanho para fragmentos e um ajuste de compilação.
 
 ## Teste manual
 
-1. Abra o aplicativo sobre uma janela de teste ou imagem estática de minimapa; arraste o círculo para ajustar a posição. Não use este teste durante uma partida de Albion Online sem autorização expressa da Sandbox Interactive.
+1. Abra o aplicativo; arraste o círculo para alinhar com o minimapa.
 2. Ajuste o tamanho e o escurecimento na janela de controle.
-3. Confira os três pontos vermelhos em movimento e o rótulo permanente **SIMULAÇÃO**.
-4. Clique em **Pausar simulação**; os pontos devem desaparecer. Retome para exibi-los novamente.
+3. Clique em **Iniciar captura** e mova o personagem. Confira os contadores de posição local e recursos.
+4. Com **Mostrar recursos capturados** marcado, confira os pontos verdes. Desmarque para ocultá-los.
 5. Clique em **Travar posição**; o overlay deixa passar cliques para a janela de baixo. Destrave para arrastar novamente.
 6. Feche a janela de controle; o overlay deve fechar junto.
 
@@ -74,7 +80,7 @@ O posicionamento é manual e não acompanha mudanças de tamanho, resolução ou
 
 ## Avaliação de captura passiva
 
-O projeto público [AlbionOnline-StatisticsAnalysis](https://github.com/Triky313/AlbionOnline-StatisticsAnalysis) oferece captura alternativa por Npcap. Em [LibpcapPacketProvider.cs](https://github.com/Triky313/AlbionOnline-StatisticsAnalysis/blob/main/src/StatisticsAnalysisTool/Network/PacketProviders/LibpcapPacketProvider.cs), abre adaptadores, aplica filtro para UDP nas portas 5055/5056/5058, lê IPv4/IPv6 e repassa payloads ao receptor Photon. Não identifiquei nesse caminho um mecanismo de ocultação ou “bypass” de anticheat. Captura passiva não equivale a aprovação para um radar. O [README do projeto](https://github.com/Triky313/AlbionOnline-StatisticsAnalysis#is-this-allowed) diz que sua ferramenta não tem overlay e não rastreia jogadores fora da visão do usuário. Nossa captura Npcap alimenta os contadores e a prévia experimental de recursos; os marcadores vermelhos de jogadores permanecem simulados.
+O projeto público [AlbionOnline-StatisticsAnalysis](https://github.com/Triky313/AlbionOnline-StatisticsAnalysis) oferece captura alternativa por Npcap. Em [LibpcapPacketProvider.cs](https://github.com/Triky313/AlbionOnline-StatisticsAnalysis/blob/main/src/StatisticsAnalysisTool/Network/PacketProviders/LibpcapPacketProvider.cs), abre adaptadores, aplica filtro para UDP nas portas 5055/5056/5058, lê IPv4/IPv6 e repassa payloads ao receptor Photon. Não identifiquei nesse caminho um mecanismo de ocultação ou “bypass” de anticheat. Captura passiva não equivale a aprovação para um radar. O [README do projeto](https://github.com/Triky313/AlbionOnline-StatisticsAnalysis#is-this-allowed) diz que sua ferramenta não tem overlay e não rastreia jogadores fora da visão do usuário. Nossa captura Npcap alimenta os contadores e a exibição de recursos; nenhum marcador de jogador é desenhado sem posição validada.
 
 ## Regras e uso
 

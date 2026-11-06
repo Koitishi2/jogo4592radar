@@ -6,30 +6,26 @@
   <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
   <StackPanel Margin="18">
     <TextBlock x:Name="VersionHeading" Text="jogo4592radar" FontSize="19" FontWeight="Bold" />
-    <TextBlock Text="MODO DE TESTE · pontos simulados + captura diagnóstica" Foreground="#FF7676" FontWeight="Bold" Margin="0,0,0,15" TextWrapping="Wrap" />
+    <TextBlock Text="Recursos capturados ao vivo · posições de jogadores indisponíveis" Foreground="#8EE0AD" FontWeight="Bold" Margin="0,0,0,15" TextWrapping="Wrap" />
     <TextBlock Text="Escurecimento do minimapa" />
     <Slider x:Name="OpacitySlider" Minimum="0" Maximum="0.75" Value="0.2" TickFrequency="0.05" ValueChanged="OpacityChanged" />
     <TextBlock x:Name="OpacityText" Text="20%" HorizontalAlignment="Right" />
     <TextBlock Text="Tamanho do overlay" Margin="0,8,0,5" />
     <Slider x:Name="SizeSlider" Minimum="140" Maximum="400" Value="240" TickFrequency="10" ValueChanged="OverlaySizeChanged" />
     <TextBlock x:Name="SizeText" Text="240 px" HorizontalAlignment="Right" />
-    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-      <Button x:Name="ToggleButton" Content="Pausar simulação" Click="ToggleSimulation" />
-      <Button x:Name="LockButton" Content="Travar posição" Click="ToggleLock" />
-    </StackPanel>
+    <Button x:Name="LockButton" Content="Travar posição" Click="ToggleLock" HorizontalAlignment="Left" Margin="0,8,0,0" />
     <Separator Margin="0,14,0,12" Background="#495566" />
     <TextBlock Text="CAPTURA NPCAP · DIAGNÓSTICO" FontWeight="Bold" />
-    <TextBlock Text="Lê pacotes UDP nas portas 5055, 5056 e 5058 e tenta decodificar eventos Photon. Posições ainda não são validadas." TextWrapping="Wrap" Foreground="#BEC9D3" />
+    <TextBlock Text="Lê pacotes UDP nas portas 5055, 5056 e 5058 e decodifica eventos Photon. A posição de outros jogadores não foi validada." TextWrapping="Wrap" Foreground="#BEC9D3" />
     <Button x:Name="CaptureButton" Content="Iniciar captura" HorizontalAlignment="Left" Click="ToggleCapture" />
+    <CheckBox x:Name="ResourcePreviewCheck" Content="Mostrar recursos capturados" Margin="0,9,0,7" IsChecked="True" />
     <TextBlock x:Name="CaptureStatus" Text="Captura parada." TextWrapping="Wrap" Foreground="#8EE0AD" Margin="0,8,0,0" />
-    <CheckBox x:Name="ResourcePreviewCheck" Content="Prévia de recursos reais (experimental)" Margin="0,9,0,7" IsChecked="False" />
     <TextBlock Text="Raio da prévia (unidades do mapa)" />
     <Slider x:Name="ResourceRadiusSlider" Minimum="20" Maximum="160" Value="80" TickFrequency="10" />
     <TextBlock Text="Rotação da prévia" Margin="0,7,0,5" />
     <Slider x:Name="ResourceRotationSlider" Minimum="-180" Maximum="180" Value="-135" TickFrequency="15" />
-    <TextBlock Text="Pontos verdes vêm de eventos de recursos; ajuste raio e rotação para comparar com o minimapa. Pontos vermelhos ainda são simulados." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,8,0,0" />
-    <TextBlock Text="Arraste o círculo sobre uma imagem de teste. Depois, trave a posição para os cliques passarem à janela abaixo." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,13,0,0" />
-    <TextBlock Text="Os pontos vermelhos ainda são simulados. A contagem de pacotes não confirma inimigos reais." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,8,0,0" />
+    <TextBlock Text="Pontos verdes vêm de eventos de recursos; ajuste raio e rotação para comparar com o minimapa. Nenhum ponto vermelho é desenhado sem posição validada." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,8,0,0" />
+    <TextBlock Text="Arraste o círculo sobre o minimapa. Depois, trave a posição para os cliques passarem à janela abaixo." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,13,0,0" />
   </StackPanel>
   </ScrollViewer>
 </Window>

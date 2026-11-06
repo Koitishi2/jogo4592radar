@@ -51,6 +51,7 @@ internal sealed class WorldStateTracker
     public void ObserveEvent(PhotonEvent message)
     {
         var code = WireCode(message.Parameters, 252, message.Code);
+        if (code is not (1 or 39 or 40)) return;
         var parameters = message.Parameters;
         lock (_gate)
         {

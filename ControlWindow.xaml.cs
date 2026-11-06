@@ -7,10 +7,9 @@ namespace Jogo4592Radar;
 public partial class ControlWindow : Window
 {
     private OverlayWindow? _overlay;
-    private bool _running = true;
     private bool _locked;
     private readonly NpcapMonitor _capture = new();
-    private readonly DispatcherTimer _statusTimer = new() { Interval = TimeSpan.FromMilliseconds(500) };
+    private readonly DispatcherTimer _statusTimer = new() { Interval = TimeSpan.FromMilliseconds(750) };
 
     public ControlWindow()
     {
@@ -51,13 +50,6 @@ public partial class ControlWindow : Window
         if (SizeText is null) return;
         SizeText.Text = $"{Math.Round(e.NewValue)} px";
         _overlay?.SetSize(e.NewValue);
-    }
-
-    private void ToggleSimulation(object sender, RoutedEventArgs e)
-    {
-        _running = !_running;
-        _overlay?.SetSimulation(_running);
-        ToggleButton.Content = _running ? "Pausar simulação" : "Retomar simulação";
     }
 
     private void ToggleLock(object sender, RoutedEventArgs e)
@@ -102,7 +94,7 @@ public partial class ControlWindow : Window
         else if (_capture.IsRunning)
         {
             CaptureStatus.Text = $"{_capture.AdapterCount} adaptador(es) · {_capture.UdpPackets} UDP candidatos · {_capture.LikelyPhotonPackets} Photon prováveis\n" +
-                $"Eventos: {_capture.DecodedEvents} · jogadores: {_capture.PlayerSpawns} · recursos: {_capture.ResourceSpawns} · movimentos: {_capture.MoveEvents} · erros: {_capture.DecodeErrors}\n" +
+                $"Eventos: {_capture.DecodedEvents} · entradas de jogadores: {_capture.PlayerSpawns} · recursos: {_capture.ResourceSpawns} · movimentos: {_capture.MoveEvents} · erros: {_capture.DecodeErrors}\n" +
                 $"Posição local: {(world.HasLocalPosition ? "recebida" : "aguardando movimento/entrada")}; recursos rastreados: {world.TrackedResources}; visíveis no raio: {world.VisibleResources.Count}";
         }
         else if (CaptureButton.Content?.ToString() == "Iniciar captura")
