@@ -1,8 +1,9 @@
-<Window x:Class="Jogo4592Radar.ControlWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="jogo4592radar — Simulação" Width="360" Height="345" MinWidth="330" MinHeight="320" WindowStartupLocation="CenterScreen" Background="#17202B" Foreground="White">
+<Window x:Class="Jogo4592Radar.ControlWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="jogo4592radar — Simulação" Width="380" Height="425" MinWidth="340" MinHeight="360" WindowStartupLocation="CenterScreen" Background="#17202B" Foreground="White">
   <Window.Resources>
     <Style TargetType="TextBlock"><Setter Property="Margin" Value="0,0,0,5" /></Style>
     <Style TargetType="Button"><Setter Property="Margin" Value="0,5,8,0" /><Setter Property="Padding" Value="8,5" /></Style>
   </Window.Resources>
+  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
   <StackPanel Margin="18">
     <TextBlock x:Name="VersionHeading" Text="jogo4592radar" FontSize="19" FontWeight="Bold" />
     <TextBlock Text="MODO DE TESTE · inimigos simulados" Foreground="#FF7676" FontWeight="Bold" Margin="0,0,0,15" />
@@ -16,7 +17,8 @@
       <Button x:Name="ToggleButton" Content="Pausar simulação" Click="ToggleSimulation" />
       <Button x:Name="LockButton" Content="Travar posição" Click="ToggleLock" />
     </StackPanel>
-    <TextBlock Text="Arraste o círculo sobre o minimapa. Depois, trave a posição para os cliques passarem ao jogo." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,13,0,0" />
-    <TextBlock Text="Somente janela ou tela cheia sem exclusividade. Nenhum pacote é capturado nesta versão." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,8,0,0" />
+    <TextBlock Text="Arraste o círculo sobre uma imagem de teste. Depois, trave a posição para os cliques passarem à janela abaixo." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,13,0,0" />
+    <TextBlock Text="Somente demonstração. Nenhum dado do jogo é capturado ou analisado nesta versão." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,8,0,0" />
   </StackPanel>
+  </ScrollViewer>
 </Window>

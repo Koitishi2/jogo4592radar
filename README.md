@@ -1,8 +1,10 @@
-# jogo4592radar 1.0.2
+# jogo4592radar 1.0.3
 
 Base experimental para Windows 10/11, em C# e WPF. Mostra um círculo transparente sobre o minimapa com três pontos vermelhos **simulados**. Não detecta jogadores reais, não lê pacotes, não injeta DLL e não acessa memória do Albion Online.
 
 ## Histórico de versões
+
+- **1.0.3 (2026-11-06):** Janela de controle ampliada com rolagem e textos de demonstração corrigidos para evitar corte em telas com escala.
 
 - **1.0.2 (2026-11-05):** Documentadas as regras oficiais, a ausência de bypass e o limite dos testes a uma janela de demonstração.
 
