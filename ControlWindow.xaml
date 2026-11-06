@@ -25,12 +25,13 @@
     <TextBlock Text="Lê pacotes UDP nas portas 5055, 5056 e 5058 e decodifica eventos Photon. A posição de outros jogadores não foi validada." TextWrapping="Wrap" Foreground="#BEC9D3" />
     <Button x:Name="CaptureButton" Content="Iniciar captura" HorizontalAlignment="Left" Click="ToggleCapture" />
     <CheckBox x:Name="ResourcePreviewCheck" Content="Mostrar recursos capturados" Margin="0,9,0,7" IsChecked="True" />
+    <CheckBox x:Name="PlayerAlertCheck" Content="Avisar sobre jogadores detectados (sem posição)" Margin="0,0,0,8" IsChecked="False" />
     <TextBlock x:Name="CaptureStatus" Text="Captura parada." TextWrapping="Wrap" Foreground="#8EE0AD" Margin="0,8,0,0" />
     <TextBlock Text="Raio da prévia (unidades do mapa)" />
     <Slider x:Name="ResourceRadiusSlider" Minimum="20" Maximum="160" Value="80" TickFrequency="10" />
     <TextBlock Text="Rotação da prévia" Margin="0,7,0,5" />
     <Slider x:Name="ResourceRotationSlider" Minimum="-180" Maximum="180" Value="-135" TickFrequency="15" />
-    <TextBlock Text="Pontos verdes vêm de eventos de recursos; ajuste raio e rotação para comparar com o minimapa. Nenhum ponto vermelho é desenhado sem posição validada." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,8,0,0" />
+    <TextBlock Text="Pontos verdes mostram recursos. O aviso de jogadores muda a borda para laranja; não indica direção nem confirma que são inimigos. Nenhum ponto vermelho é desenhado sem posição validada." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,8,0,0" />
     <TextBlock Text="Arraste o losango sobre o minimapa e ajuste largura e altura. Depois, trave a posição para os cliques passarem à janela abaixo." TextWrapping="Wrap" Foreground="#BEC9D3" Margin="0,13,0,0" />
   </StackPanel>
   </ScrollViewer>

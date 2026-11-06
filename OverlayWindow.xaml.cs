@@ -13,6 +13,7 @@ public partial class OverlayWindow : Window
     private const int WsExTransparent = 0x20;
     private const int WsExLayered = 0x80000;
     private bool _locked;
+    private bool _playerAlert;
 
     public OverlayWindow()
     {
@@ -28,16 +29,27 @@ public partial class OverlayWindow : Window
 
     internal void SetResources(IReadOnlyList<ResourcePoint> resources) => ResourceMarkers.SetPoints(resources);
 
+    internal void SetPlayerAlert(bool active)
+    {
+        if (_playerAlert == active) return;
+        _playerAlert = active;
+        UpdateOutline();
+    }
+
     public void SetLocked(bool locked)
     {
         _locked = locked;
-        Outline.Stroke = locked ? Brushes.Transparent : new SolidColorBrush(Color.FromRgb(118, 214, 136));
+        UpdateOutline();
         var handle = new WindowInteropHelper(this).Handle;
         if (handle == IntPtr.Zero) return;
         var style = GetWindowLongPtr(handle, GwlExstyle).ToInt64();
         style = locked ? style | WsExTransparent | WsExLayered : style & ~WsExTransparent;
         SetWindowLongPtr(handle, GwlExstyle, new IntPtr(style));
     }
+
+    private void UpdateOutline() => Outline.Stroke = _playerAlert
+        ? Brushes.OrangeRed
+        : _locked ? Brushes.Transparent : Brushes.LightGreen;
 
     private void DragOverlay(object sender, MouseButtonEventArgs e)
     {

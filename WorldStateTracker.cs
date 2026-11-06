@@ -4,13 +4,14 @@ using AlbionPacketExplorer.PhotonWire;
 namespace Jogo4592Radar;
 
 internal readonly record struct ResourcePoint(double X, double Y);
-internal readonly record struct WorldSnapshot(bool HasLocalPosition, int TrackedResources, IReadOnlyList<ResourcePoint> VisibleResources);
+internal readonly record struct WorldSnapshot(bool HasLocalPosition, int TrackedResources, IReadOnlyList<ResourcePoint> VisibleResources, int DetectedPlayers);
 
-/// <summary>Tracks only positions that appear explicitly in decoded wire events.</summary>
+/// <summary>Tracks explicit resource positions and non-positional player presence from wire events.</summary>
 internal sealed class WorldStateTracker
 {
     private readonly object _gate = new();
     private readonly Dictionary<long, ResourceEntity> _resources = new();
+    private readonly Dictionary<long, DateTime> _players = new();
     private double? _localX;
     private double? _localY;
 
@@ -21,6 +22,7 @@ internal sealed class WorldStateTracker
         lock (_gate)
         {
             _resources.Clear();
+            _players.Clear();
             _localX = _localY = null;
         }
     }
@@ -43,6 +45,7 @@ internal sealed class WorldStateTracker
         lock (_gate)
         {
             _resources.Clear();
+            _players.Clear();
             _localX = x;
             _localY = y;
         }
@@ -51,13 +54,28 @@ internal sealed class WorldStateTracker
     public void ObserveEvent(PhotonEvent message)
     {
         var code = WireCode(message.Parameters, 252, message.Code);
-        if (code is not (1 or 39 or 40)) return;
+        if (code is not (1 or 3 or 29 or 39 or 40 or 46)) return;
         var parameters = message.Parameters;
         lock (_gate)
         {
             if (code == 1 && TryId(parameters.GetValueOrDefault((byte)0), out var leaveId))
             {
                 _resources.Remove(leaveId);
+                _players.Remove(leaveId);
+            }
+            else if (code == 29 && TryId(parameters.GetValueOrDefault((byte)0), out var playerId))
+            {
+                _players[playerId] = DateTime.UtcNow;
+            }
+            else if (code == 3 && TryId(parameters.GetValueOrDefault((byte)0), out var movingId) &&
+                     _players.ContainsKey(movingId))
+            {
+                _players[movingId] = DateTime.UtcNow;
+            }
+            else if (code == 46 && TryId(parameters.GetValueOrDefault((byte)0), out var resourceId) &&
+                     !parameters.ContainsKey(1))
+            {
+                _resources.Remove(resourceId);
             }
             else if (code == 40 &&
                      TryId(parameters.GetValueOrDefault((byte)0), out var id) &&
@@ -92,9 +110,12 @@ internal sealed class WorldStateTracker
             var expired = _resources.Where(item => DateTime.UtcNow - item.Value.LastSeen > TimeSpan.FromSeconds(60))
                 .Select(item => item.Key).ToArray();
             foreach (var id in expired) _resources.Remove(id);
+            var stalePlayers = _players.Where(item => DateTime.UtcNow - item.Value > TimeSpan.FromSeconds(60))
+                .Select(item => item.Key).ToArray();
+            foreach (var id in stalePlayers) _players.Remove(id);
 
             if (_localX is not { } localX || _localY is not { } localY)
-                return new WorldSnapshot(false, _resources.Count, Array.Empty<ResourcePoint>());
+                return new WorldSnapshot(false, _resources.Count, Array.Empty<ResourcePoint>(), _players.Count);
 
             var visible = new List<ResourcePoint>();
             foreach (var resource in _resources.Values)
@@ -106,7 +127,7 @@ internal sealed class WorldStateTracker
                 var rotatedY = dx * sin + dy * cos;
                 visible.Add(new ResourcePoint(0.5 + rotatedX / (2 * radius), 0.5 + rotatedY / (2 * radius)));
             }
-            return new WorldSnapshot(true, _resources.Count, visible);
+            return new WorldSnapshot(true, _resources.Count, visible, _players.Count);
         }
     }
 
@@ -114,7 +135,10 @@ internal sealed class WorldStateTracker
     {
         if (_localX is { } oldX && _localY is { } oldY &&
             Math.Pow(x - oldX, 2) + Math.Pow(y - oldY, 2) > 150 * 150)
+        {
             _resources.Clear();
+            _players.Clear();
+        }
         _localX = x;
         _localY = y;
     }

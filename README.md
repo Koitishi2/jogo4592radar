@@ -1,8 +1,10 @@
-# jogo4592radar 1.0.9
+# jogo4592radar 1.0.10
 
-Aplicativo Windows 10/11 em C# e WPF com overlay transparente em formato de losango, alinhável ao minimapa. A captura passiva por Npcap decodifica eventos Photon e mostra **pontos verdes de recursos** a partir de coordenadas recebidas, com largura, altura, raio e rotação ajustáveis. A simulação de pontos vermelhos foi removida. Posições de outros jogadores ainda não são exibidas porque não foram validadas nos dados capturados. Não injeta DLL nem acessa memória do Albion Online.
+Aplicativo Windows 10/11 em C# e WPF com overlay transparente em formato de losango, alinhável ao minimapa. A captura passiva por Npcap decodifica eventos Photon e mostra **pontos verdes de recursos** a partir de coordenadas recebidas, com largura, altura, raio e rotação ajustáveis. Há controles separados para mostrar recursos e avisar sobre jogadores detectados: o aviso muda a borda para laranja, sem indicar posição ou confirmar que sejam inimigos. A simulação de pontos vermelhos foi removida. Posições de outros jogadores ainda não são exibidas porque não foram validadas nos dados capturados. Não injeta DLL nem acessa memória do Albion Online.
 
 ## Histórico de versões
+
+- **1.0.10 (2026-11-06):** Separa recursos e aviso de jogadores em tempo real; borda laranja indica presença sem posição; remove recursos esgotados no evento 46. Não desenha inimigos sem coordenadas validadas.
 
 - **1.0.9 (2026-11-06):** Ajusta posição e tamanho iniciais do losango conforme minimapa 1920x1080; adiciona botão de realinhamento e contorno visível ao configurar. Outras escalas exigem ajuste manual.
 
@@ -59,6 +61,10 @@ Clique em **Iniciar captura** na janela de controle. O aplicativo abre os adapta
 
 Para testar os recursos, inicie a captura **antes de entrar ou se mover** em uma área com recursos. A opção **Mostrar recursos capturados** já vem marcada; desmarque-a para ocultar os pontos. O programa só desenha recursos depois de receber a posição local por uma requisição de movimento ou resposta de entrada no mapa. **Alinhar ao minimapa** restaura uma posição calculada para a tela principal; em 1920×1080, usa aproximadamente 365 px de largura e 72% de altura. Arraste o losango para corrigir a posição e ajuste **largura**, **altura**, **raio** e **rotação** observando o alinhamento; os valores são provisórios e dependem da escala da interface do jogo. A camada de pontos é recortada ao losango. A visualização pode omitir recursos ou mostrar pontos antigos por até 60 segundos; a precisão ainda não foi medida.
 
+Marque **Avisar sobre jogadores detectados (sem posição)** para receber um aviso visual separado: a borda do losango fica laranja enquanto há identificadores de jogadores recentes no tráfego. O aviso não informa direção, distância, equipe ou hostilidade; ele pode incluir jogadores amigáveis e permanecer até 60 segundos sem novo evento. Se a captura começar depois da entrada de um jogador, talvez não receba o evento inicial dele. Desmarque para ocultar o aviso. A opção não coloca pontos vermelhos no minimapa.
+
+Recursos recebidos nos eventos 39/40 são desenhados com coordenadas explícitas. O evento 46 sem o campo de tamanho remove o recurso esgotado imediatamente, além da remoção anterior por saída de entidade (evento 1) e prazo máximo de 60 segundos. A interpretação do evento 46 segue o [tratamento documentado no OpenRadar](https://github.com/Nouuu/Albion-Online-OpenRadar/blob/main/web/scripts/handlers/HarvestablesHandler.js).
+
 Em um teste local de 12 segundos com o cliente aberto (2026-11-06), a captura abriu 5 adaptadores, observou 367 pacotes UDP candidatos, decodificou 580 eventos, incluindo 9 de entrada de jogador e 476 de movimento; 0 eventos de recurso apareceram nesse intervalo e houve 0 erros de decodificação. A origem de cada pacote não foi atribuída a um processo, e esses números não validam coordenadas nem a exibição no minimapa.
 
 Em outra captura de 20 segundos com o personagem se movendo (2026-11-06), chegaram requisições de movimento com posição local e 33 eventos de recursos, incluindo lotes com coordenadas e recursos individuais. Um teste de projeção com valores dessa captura produziu três pontos verdes dentro do raio configurado. Uma captura posterior com o personagem parado não recebeu nova posição local, portanto a prévia ficou vazia como esperado.
@@ -67,7 +73,7 @@ Em outra captura de 20 segundos com o personagem se movendo (2026-11-06), chegar
 
 O [OpenRadar](https://github.com/Nouuu/Albion-Online-OpenRadar/blob/main/web/scripts/drawings/PlayersDrawing.js) registra que o desenho de posições de jogadores está desativado porque essas posições chegam cifradas. Também observamos eventos de movimento com posições em bytes, sem coordenadas verificadas. Por isso, a presença de um jogador detectada no tráfego não é convertida em marcador vermelho.
 
-**Jogadores na 1.0.6:** mesmo com outros jogadores ou inimigos no mapa, o aplicativo não desenha pontos vermelhos. O contador de entrada de jogadores confirma apenas que um evento foi recebido; não fornece uma posição utilizável. Essa limitação permanece até uma validação independente de coordenadas obtidas sem acessar a memória do jogo.
+**Jogadores:** mesmo com outros jogadores ou inimigos no mapa, o aplicativo não desenha pontos vermelhos. O evento de entrada confirma apenas presença; não fornece uma posição utilizável. A partir da 1.0.10, identificadores recentes podem acionar uma borda laranja opcional. Essa limitação de posicionamento permanece até uma validação independente de coordenadas obtidas sem acessar a memória do jogo. O [OpenRadar](https://github.com/Nouuu/Albion-Online-OpenRadar#other-players-do-not-appear-on-the-radar) também documenta que a captura passiva não consegue colocar jogadores no mapa por causa da cifragem de posições.
 
 **Amostra adicional (2026-11-06):** uma coleta passiva de 15 segundos com outros jogadores visíveis recebeu 3 eventos de entrada (código 29) e 64 de movimento (código 3). Registramos apenas os tipos e tamanhos dos campos, sem nomes ou conteúdo. O evento de movimento continha um identificador e um bloco de 30 bytes; não foi possível validar duas coordenadas de posição nesse bloco. As capturas de tela mostram jogadores na cena, mas não fornecem uma correspondência entre esses eventos e posições no minimapa. Portanto, pontos vermelhos continuam ausentes por decisão de precisão.
 
@@ -81,6 +87,8 @@ Na sessão ativa da 1.0.6, uma amostra de 10 segundos mediu 1,39 segundo de CPU 
 
 **Ajuste da 1.0.9 (2026-11-06):** nova captura de tela mostrou que o losango da 1.0.8 ainda era menor e estava à direita/abaixo do minimapa. Em uma tela de 1920×1080, o mapa ocupava aproximadamente 360×265 px, enquanto o overlay tinha 240×204 px. O novo posicionamento inicial usa 19% da largura útil, altura de 72% da largura, margem direita de 20 px e margem inferior de 35 px em relação à área útil do Windows. O botão de alinhamento reaplica esse cálculo. Isso é uma aproximação baseada na tela observada, não detecção automática dos limites do minimapa; requer conferência em jogo e ajuste manual para outras escalas/resoluções.
 
+**Teste técnico da 1.0.10 (2026-11-06):** a compilação Release e a abertura passaram. Um teste com eventos no formato decodificado confirmou que entrada e saída de jogador atualizam o aviso e que um recurso esgotado por evento 46 desaparece. Uma captura passiva de 10 segundos abriu 1 adaptador, leu 183 pacotes UDP candidatos e 171 eventos sem erros; nessa amostra não houve novo recurso ou posição local. Ainda falta validar visualmente a borda laranja com uma entrada de jogador enquanto a captura está ativa.
+
 O parser PhotonWire em `vendor/PhotonWire` veio de [AlbionPacketExplorer](https://github.com/LuluStudioX/AlbionPacketExplorer/tree/ff79e3f7a390dc393c70a8d8217fdafcccb64a99/libs/PhotonWire), licenciado sob MIT. A licença está preservada em `vendor/PhotonWire/LICENSE`. O código importado recebeu limites de tamanho para fragmentos e um ajuste de compilação.
 
 ## Teste manual
@@ -88,7 +96,7 @@ O parser PhotonWire em `vendor/PhotonWire` veio de [AlbionPacketExplorer](https:
 1. Abra o aplicativo; arraste o losango para alinhar com o minimapa.
 2. Clique em **Alinhar ao minimapa** para restaurar a posição inicial. Ajuste largura, altura e escurecimento na janela de controle, e arraste se necessário.
 3. Clique em **Iniciar captura** e mova o personagem. Confira os contadores de posição local e recursos.
-4. Com **Mostrar recursos capturados** marcado, confira os pontos verdes. Desmarque para ocultá-los.
+4. Com **Mostrar recursos capturados** marcado, confira os pontos verdes. Desmarque para ocultá-los. Marque separadamente **Avisar sobre jogadores detectados (sem posição)** para testar a borda laranja quando chegar um evento de jogador.
 5. Clique em **Travar posição**; o overlay deixa passar cliques para a janela de baixo. Destrave para arrastar novamente.
 6. Feche a janela de controle; o overlay deve fechar junto.
 
